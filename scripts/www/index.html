@@ -1,11 +1,1572 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes, viewport-fit=cover">
+  <title>设计师工作台</title>
+
+  <!-- PWA Manifest for PakePlus compatibility -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%AE%BE%E8%AE%A1%E5%B8%88%E5%B7%A5%E4%BD%9C%E5%8F%B0%22%2C%22short_name%22%3A%22%E8%AE%BE%E8%AE%A1%E5%8F%B0%22%2C%22description%22%3A%22%E8%AE%BE%E8%AE%A1%E5%B8%88%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%8F%90%E9%86%92%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f7f5f2%22%2C%22theme_color%22%3A%22%23b58a5a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill%3D'%23b58a5a'%2F%3E%3Ctext%20x%3D'50'%20y%3D'68'%20font-size%3D'55'%20text-anchor%3D'middle'%20fill%3D'white'%3E%F0%9F%93%90%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22100x100%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'80'%20fill%3D'%23b58a5a'%2F%3E%3Ctext%20x%3D'256'%20y%3D'340'%20font-size%3D'280'%20text-anchor%3D'middle'%20fill%3D'white'%3E%F0%9F%93%90%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  
+  <meta name="theme-color" content="#b58a5a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="设计师工作台">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23b58a5a'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='white'%3E📐%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #f7f5f2;
+      --card-bg: #ffffff;
+      --primary: #2c2c2c;
+      --accent: #b58a5a;
+      --accent-light: #e6d7c4;
+      --accent-dark: #8b6239;
+      --text: #3a3a3a;
+      --text-secondary: #6b6b6b;
+      --border: #e2dbd1;
+      --shadow: 0 4px 18px rgba(60, 40, 20, 0.06);
+      --shadow-lg: 0 12px 36px rgba(40, 25, 10, 0.1);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.2s ease;
+      --profit-green: #2d6a4f;
+      --profit-bg: #ecf7f0;
+      --group-blue: #3a6280;
+      --group-bg: #e9f0f7;
+      --store-color: #8b5a3a;
+      --store-bg: #fdf3e8;
+      --pending-color: #d35400;
+      --pending-bg: #fef5e7;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-user-select: none;
+      user-select: none;
+      padding-bottom: var(--safe-bottom);
+    }
+
+    /* 数据持久化状态指示器 */
+    .storage-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 6px 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .storage-indicator.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .storage-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4a8a5e;
+      animation: pulse-dot 2s infinite;
+    }
+    .storage-dot.saving {
+      background: #e67e22;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .install-banner {
+      background: linear-gradient(135deg, #fdf8f3, #faf5ef);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin: 0 0 16px 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      flex-wrap: wrap;
+    }
+    .install-banner.show { display: flex; }
+    .install-banner-text {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+    .install-banner-text small {
+      display: block;
+      font-weight: 400;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+    }
+    .btn-install {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-dismiss {
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+    }
+
+    .app-header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.3px;
+      color: var(--primary);
+    }
+    .logo .icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #b58a5a, #9e7344);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+    .header-stats {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .badge-pill {
+      background: #f5f1eb;
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .badge-pill span {
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+    .reminder-indicator {
+      background: #fdf0ed;
+      color: #c0392b;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .stat-content .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--primary);
+    }
+    .stat-content .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .profit-highlight { color: var(--profit-green); }
+    .total-revenue-highlight { color: #8b6239; }
+
+    .main-layout {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .month-panel {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 120px;
+      max-width: 140px;
+      position: sticky;
+      top: 86px;
+      flex-shrink: 0;
+    }
+    .month-panel-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 6px 10px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+    .month-chip-vertical {
+      display: block;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .month-chip-vertical:hover {
+      background: #f9f6f2;
+      border-color: var(--border);
+      color: var(--accent-dark);
+    }
+    .month-chip-vertical.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(181,138,90,0.3);
+    }
+    .month-chip-vertical.all-chip {
+      font-weight: 700;
+      color: var(--primary);
+      background: #f5f1eb;
+      border-color: var(--border);
+      margin-bottom: 4px;
+    }
+    .month-chip-vertical.all-chip.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .toolbar-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
+    }
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+      max-width: 280px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      font-size: 0.9rem;
+      background: white;
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(181,138,90,0.1);
+    }
+    .search-box .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #b3a38b;
+    }
+    select.filter-select {
+      padding: 10px 30px 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      font-size: 0.9rem;
+      background: white;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      cursor: pointer;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 28px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      background: white;
+      border: 1.5px solid var(--border);
+      color: var(--primary);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(181,138,90,0.28);
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline:hover { background: #f9f6f2; border-color: var(--accent); }
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 0.73rem;
+      border-radius: 18px;
+      gap: 3px;
+    }
+    .btn-export-month {
+      background: #ecf7f0;
+      color: var(--profit-green);
+      border-color: #c3e0d0;
+    }
+    .btn-export-month:hover { background: #d4eddf; }
+
+    .monthly-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .month-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .month-header {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #fdf8f3, #faf5ef);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .month-header:hover { background: #fdf6ef; }
+    .month-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+    .month-icon { font-size: 1.3rem; }
+    .month-summary {
+      display: flex;
+      gap: 18px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .month-summary strong { color: var(--accent-dark); }
+    .collapse-icon {
+      transition: transform 0.2s ease;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+    }
+    .month-card.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .month-card.collapsed .table-wrapper { display: none; }
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+      font-size: 0.82rem;
+    }
+    thead th {
+      background: #f8f6f2;
+      padding: 10px 8px;
+      font-weight: 600;
+      font-size: 0.71rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #f2efe9;
+      vertical-align: middle;
+    }
+    tbody tr:hover { background: #fefcf8; }
+    tbody tr.reminder-pending-row {
+      background: #fef9f3;
+      border-left: 3px solid var(--pending-color);
+    }
+    .td-date { font-weight: 500; white-space: nowrap; }
+    .td-designer { font-weight: 600; }
+    .td-group {
+      background: var(--group-bg);
+      color: var(--group-blue);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.71rem;
+      font-weight: 600;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .td-store {
+      background: var(--store-bg);
+      color: var(--store-color);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.71rem;
+      font-weight: 600;
+      display: inline-block;
+      white-space: nowrap;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .td-project-name {
+      font-weight: 500;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .td-price, .td-total { font-weight: 600; }
+    .td-profit { font-weight: 700; color: var(--profit-green); }
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 0.69rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-designing { background: #eef2f8; color: #4a6080; }
+    .badge-completed { background: #e8f4ec; color: #3d704d; }
+    .badge-cancelled { background: #fdf0ed; color: #b84c3a; }
+    .badge-pending { background: #fef5e7; color: #d35400; }
+    .td-note {
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .reminder-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+    .reminder-badge.pending { background: #fdebd0; color: #d35400; }
+    .actions-cell { display: flex; gap: 3px; }
+
+    .reminder-modal {
+      position: fixed; inset: 0; background: rgba(30,20,10,0.5);
+      backdrop-filter: blur(6px); z-index: 300;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .reminder-dialog {
+      background: white; border-radius: var(--radius);
+      width: 100%; max-width: 580px; max-height: 80vh; overflow-y: auto;
+      box-shadow: var(--shadow-lg); border: 2px solid var(--pending-color);
+    }
+    .reminder-dialog-header {
+      padding: 16px 22px;
+      background: linear-gradient(135deg, #fef5e7, #fef9f3);
+      border-bottom: 1px solid #f0d0b0;
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700; font-size: 1rem; color: #d35400;
+    }
+    .reminder-item {
+      padding: 12px 18px;
+      border-bottom: 1px solid #f5f0eb;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .reminder-info { display: flex; flex-direction: column; gap: 2px; }
+    .reminder-info strong { color: var(--primary); }
+    .reminder-info small { color: var(--text-secondary); font-size: 0.75rem; }
+    .reminder-footer { padding: 12px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(30,20,10,0.4);
+      backdrop-filter: blur(4px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: white; border-radius: var(--radius);
+      width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+    }
+    .modal-header {
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700;
+    }
+    .modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 0.73rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.9rem; background: #fdfcf9; outline: none; font-family: inherit;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .form-group input:disabled { background: #f0ede8; color: #999; }
+    .profit-hint { font-size: 0.75rem; color: var(--profit-green); font-weight: 600; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+    .toast-container {
+      position: fixed; top: 24px; right: 24px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px; border-radius: 10px; font-size: 0.85rem;
+      font-weight: 600; color: #fff;
+      animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.3s forwards;
+      box-shadow: var(--shadow-lg); max-width: 380px;
+    }
+    .toast.success { background: #4a8a5e; }
+    .toast.info { background: #3a6d8c; }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    @media (max-width: 950px) {
+      .main-layout { flex-direction: column; }
+      .month-panel {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: 100%;
+        min-width: auto;
+        gap: 4px;
+        padding: 8px;
+        justify-content: center;
+      }
+      .month-panel-title { display: none; }
+      .month-chip-vertical {
+        width: auto;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      table { min-width: 950px; }
+      .storage-indicator { bottom: 10px; right: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <div class="icon">📐</div>
+      <span>设计师工作台</span>
+    </div>
+    <div class="header-stats">
+      <div class="badge-pill" id="reminderPill" style="display:none; cursor:pointer;" onclick="showReminderModal()">
+        🔔 <span id="reminderCount">0</span> 个待处理
+      </div>
+      <div class="badge-pill">📁 项目 <span id="hdrProjects">0</span></div>
+      <div class="badge-pill">💰 总利润 <span id="hdrProfit">¥0</span></div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="install-banner" id="installBanner">
+      <div>
+        <span class="install-banner-text">📲 安装设计师工作台</span>
+        <small>添加到主屏幕，像原生App一样使用</small>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-install" id="btnInstall" onclick="installApp()">📥 安装应用</button>
+        <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f5f0ea;">📋</div>
+        <div class="stat-content"><div class="stat-value" id="statProjects">0</div><div class="stat-label">总项目</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f9f3e8;">💼</div>
+        <div class="stat-content"><div class="stat-value total-revenue-highlight" id="statTotalRevenue">¥0</div><div class="stat-label">项目总价</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#ecf7f0;">💎</div>
+        <div class="stat-content"><div class="stat-value profit-highlight" id="statProfit">¥0</div><div class="stat-label">累计利润 (2元/㎡)</div></div>
+      </div>
+      <div class="stat-card" id="reminderStatCard" style="cursor:pointer;" onclick="showReminderModal()">
+        <div class="stat-icon" style="background:#fef5e7;">🔔</div>
+        <div class="stat-content"><div class="stat-value" style="color:#d35400;" id="statReminders">0</div><div class="stat-label">待处理提醒</div></div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="month-panel" id="monthPanel">
+        <div class="month-panel-title">📅 月度</div>
+      </div>
+
+      <div class="content-area">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜索设计师、门店、项目..."></div>
+            <select class="filter-select" id="filterGroup"><option value="all">所有小组</option></select>
+            <select class="filter-select" id="filterStatus">
+              <option value="all">全部进度</option>
+              <option value="设计中">设计中</option>
+              <option value="待处理">待处理</option>
+              <option value="已完成">已完成</option>
+              <option value="已取消">已取消</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="exportAllCSV()">📥 导出全部</button>
+            <button class="btn btn-primary" onclick="openAddModal()">＋ 新增项目</button>
+          </div>
+        </div>
+
+        <div class="monthly-sections" id="monthlySections"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数据持久化指示器 -->
+  <div class="storage-indicator" id="storageIndicator">
+    <div class="storage-dot" id="storageDot"></div>
+    <span id="storageText">数据已同步</span>
+  </div>
+
+  <div class="reminder-modal" id="reminderModal" style="display:none;">
+    <div class="reminder-dialog">
+      <div class="reminder-dialog-header">
+        <span>🔔 待处理项目提醒</span>
+        <button onclick="closeReminderModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#d35400;">✕</button>
+      </div>
+      <div id="reminderContent" style="max-height:50vh;overflow-y:auto;"></div>
+      <div class="reminder-footer">
+        <button class="btn btn-sm" onclick="closeReminderModal()">关闭</button>
+        <button class="btn btn-sm btn-primary" onclick="closeReminderModal();renderAll();">查看项目列表</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" style="display:none;">
+    <div class="modal">
+      <div class="modal-header"><span id="modalTitle">新增项目</span><button onclick="closeModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>📅 日期</label><input type="date" id="formDate"></div>
+          <div class="form-group"><label>👤 设计师</label><input type="text" id="formDesigner" placeholder="姓名"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>🏢 设计小组</label>
+            <select id="formGroup"><option value="A组">A组</option><option value="B组">B组</option><option value="C组">C组</option><option value="D组">D组</option></select>
+          </div>
+          <div class="form-group"><label>🏪 门店</label><input type="text" id="formStore" placeholder="输入门店名称"></div>
+        </div>
+        <div class="form-group"><label>📋 项目名称</label><input type="text" id="formProjectName" placeholder="输入项目名称"></div>
+        <div class="form-row">
+          <div class="form-group"><label>📏 面积 (㎡) <span style="font-weight:400;color:#999;">(可选)</span></label><input type="number" id="formArea" step="0.01" min="0" placeholder="留空则不计算总价" oninput="autoCalc()"></div>
+          <div class="form-group"><label>💲 每平单价 <span style="font-weight:400;color:#999;">(可选)</span></label><input type="number" id="formUnitPrice" step="0.01" min="0" placeholder="留空则不计算总价" oninput="autoCalc()"></div>
+        </div>
+        <div class="form-group"><label>💰 总价 (自动计算)</label><input type="number" id="formTotalPrice" step="0.01" readonly style="background:#f7f5f0;" placeholder="填写面积和单价后自动计算"></div>
+        <div class="profit-hint">✨ 每平米固定利润：¥2.00 (仅当面积填写时计算)</div>
+        <div class="form-row">
+          <div class="form-group"><label>进度</label>
+            <select id="formStatus">
+              <option value="设计中">设计中</option>
+              <option value="待处理">待处理</option>
+              <option value="已完成">已完成</option>
+              <option value="已取消">已取消</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>备注</label><textarea id="formNote" rows="2" placeholder="可选备注..."></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" id="btnSave" onclick="saveProject()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    (function() {
+      // ============ 双存储引擎（localStorage + IndexedDB） ============
+      const DB_NAME = 'DesignerWorkbench';
+      const DB_VERSION = 1;
+      const STORE_PROJECTS = 'projects';
+      const STORE_SETTINGS = 'settings';
+      
+      let db = null;
+      let projects = [];
+      let editingId = null;
+      let activeMonth = 'all';
+      let handledPending = {};
+      let deferredPrompt = null;
+      let installBannerDismissed = false;
+      let isSaving = false;
+
+      // ============ IndexedDB 初始化 ============
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_PROJECTS)) {
+              db.createObjectStore(STORE_PROJECTS, { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains(STORE_SETTINGS)) {
+              db.createObjectStore(STORE_SETTINGS, { keyPath: 'key' });
+            }
+          };
+          
+          request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+          };
+          
+          request.onerror = (event) => {
+            console.error('IndexedDB 打开失败:', event.target.error);
+            reject(event.target.error);
+          };
+        });
+      }
+
+      // ============ 从 IndexedDB 加载数据 ============
+      async function loadFromIndexedDB() {
+        if (!db) await openDatabase();
+        
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([STORE_PROJECTS, STORE_SETTINGS], 'readonly');
+          const projectsStore = transaction.objectStore(STORE_PROJECTS);
+          const settingsStore = transaction.objectStore(STORE_SETTINGS);
+          
+          const projectsRequest = projectsStore.getAll();
+          const settingsRequest = settingsStore.get('handledPending');
+          
+          let loadedProjects = [];
+          let loadedSettings = {};
+          
+          projectsRequest.onsuccess = () => {
+            loadedProjects = projectsRequest.result || [];
+          };
+          
+          settingsRequest.onsuccess = () => {
+            loadedSettings = settingsRequest.result?.value || {};
+          };
+          
+          transaction.oncomplete = () => {
+            resolve({ projects: loadedProjects, settings: loadedSettings });
+          };
+          
+          transaction.onerror = (event) => {
+            console.error('IndexedDB 读取失败:', event.target.error);
+            reject(event.target.error);
+          };
+        });
+      }
+
+      // ============ 保存到 IndexedDB ============
+      async function saveToIndexedDB(projectsData, settingsData) {
+        if (!db) await openDatabase();
+        
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([STORE_PROJECTS, STORE_SETTINGS], 'readwrite');
+          const projectsStore = transaction.objectStore(STORE_PROJECTS);
+          const settingsStore = transaction.objectStore(STORE_SETTINGS);
+          
+          // 清空并重新写入所有项目
+          const clearRequest = projectsStore.clear();
+          clearRequest.onsuccess = () => {
+            projectsData.forEach(project => {
+              projectsStore.put(project);
+            });
+          };
+          
+          // 保存设置
+          settingsStore.put({ key: 'handledPending', value: settingsData });
+          
+          transaction.oncomplete = () => {
+            resolve();
+          };
+          
+          transaction.onerror = (event) => {
+            console.error('IndexedDB 写入失败:', event.target.error);
+            reject(event.target.error);
+          };
+        });
+      }
+
+      // ============ 数据恢复与迁移 ============
+      async function migrateFromLocalStorage() {
+        try {
+          const lsProjects = localStorage.getItem('designer_worksheet_v10');
+          const lsSettings = localStorage.getItem('designer_pending_handled_v10');
+          
+          if (lsProjects) {
+            const parsedProjects = JSON.parse(lsProjects);
+            if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+              projects = parsedProjects;
+              await saveToIndexedDB(projects, handledPending);
+              // 迁移成功后清除旧的 localStorage 数据（保留备份）
+              localStorage.setItem('designer_worksheet_v10_backup', lsProjects);
+              localStorage.removeItem('designer_worksheet_v10');
+              localStorage.removeItem('designer_pending_handled_v10');
+              return true;
+            }
+          }
+        } catch (e) {
+          console.warn('localStorage 迁移失败:', e);
+        }
+        return false;
+      }
+
+      // ============ 完整的数据加载流程 ============
+      async function loadAllData() {
+        showStorageStatus('loading', '加载数据中...');
+        
+        try {
+          // 1. 尝试从 IndexedDB 加载
+          const idbData = await loadFromIndexedDB();
+          
+          if (idbData.projects.length > 0) {
+            projects = idbData.projects;
+            handledPending = idbData.settings || {};
+            showStorageStatus('success', '数据已加载');
+            return true;
+          }
+          
+          // 2. 如果 IndexedDB 为空，尝试从 localStorage 迁移
+          const migrated = await migrateFromLocalStorage();
+          if (migrated) {
+            showStorageStatus('success', '数据已迁移并加载');
+            return true;
+          }
+          
+          // 3. 如果都没有，使用种子数据
+          projects = [];
+          handledPending = {};
+          showStorageStatus('info', '初始化新数据库');
+          return false;
+          
+        } catch (error) {
+          console.error('数据加载失败:', error);
+          // 4. 降级到 localStorage
+          try {
+            const lsData = localStorage.getItem('designer_worksheet_v10');
+            if (lsData) {
+              projects = JSON.parse(lsData);
+              handledPending = JSON.parse(localStorage.getItem('designer_pending_handled_v10') || '{}');
+              showStorageStatus('warning', '使用本地备份');
+              return true;
+            }
+          } catch (e) {}
+          showStorageStatus('error', '数据加载失败');
+          return false;
+        }
+      }
+
+      // ============ 双存储保存 ============
+      async function saveAllData() {
+        if (isSaving) return;
+        isSaving = true;
+        showStorageStatus('saving', '保存中...');
+        
+        try {
+          // 同时写入 localStorage（作为快速备份）
+          localStorage.setItem('designer_worksheet_v10', JSON.stringify(projects));
+          localStorage.setItem('designer_pending_handled_v10', JSON.stringify(handledPending));
+          
+          // 写入 IndexedDB（主存储）
+          await saveToIndexedDB(projects, handledPending);
+          
+          showStorageStatus('success', '数据已持久化');
+        } catch (error) {
+          console.error('保存失败:', error);
+          showStorageStatus('error', '保存失败，请重试');
+        } finally {
+          isSaving = false;
+          setTimeout(() => {
+            const indicator = document.getElementById('storageIndicator');
+            indicator.classList.remove('show');
+          }, 2000);
+        }
+      }
+
+      // ============ 存储状态显示 ============
+      function showStorageStatus(type, message) {
+        const indicator = document.getElementById('storageIndicator');
+        const dot = document.getElementById('storageDot');
+        const text = document.getElementById('storageText');
+        
+        indicator.classList.add('show');
+        text.textContent = message;
+        
+        dot.className = 'storage-dot';
+        if (type === 'saving' || type === 'loading') {
+          dot.classList.add('saving');
+        }
+        
+        if (type === 'success' || type === 'info') {
+          setTimeout(() => {
+            indicator.classList.remove('show');
+          }, 2500);
+        }
+      }
+
+      // ============ DOM 元素 ============
+      const monthlySections = document.getElementById('monthlySections');
+      const monthPanel = document.getElementById('monthPanel');
+      const modalOverlay = document.getElementById('modalOverlay');
+      const reminderModal = document.getElementById('reminderModal');
+      const filterGroup = document.getElementById('filterGroup');
+      const searchInput = document.getElementById('searchInput');
+      const filterStatus = document.getElementById('filterStatus');
+      const formDate = document.getElementById('formDate');
+      const formDesigner = document.getElementById('formDesigner');
+      const formGroupEl = document.getElementById('formGroup');
+      const formStore = document.getElementById('formStore');
+      const formProjectName = document.getElementById('formProjectName');
+      const formArea = document.getElementById('formArea');
+      const formUnitPrice = document.getElementById('formUnitPrice');
+      const formTotalPrice = document.getElementById('formTotalPrice');
+      const formStatus = document.getElementById('formStatus');
+      const formNote = document.getElementById('formNote');
+      const toastContainer = document.getElementById('toastContainer');
+      const installBanner = document.getElementById('installBanner');
+
+      function showToast(msg, type='info') {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        toastContainer.appendChild(t);
+        setTimeout(() => t.remove(), 2600);
+      }
+
+      function generateId() { return 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2,6); }
+      function calcProfit(area) {
+        const a = parseFloat(area) || 0;
+        return a > 0 ? parseFloat((a * 2).toFixed(2)) : 0;
+      }
+
+      window.autoCalc = function() {
+        const area = parseFloat(formArea.value) || 0;
+        const unitPrice = parseFloat(formUnitPrice.value) || 0;
+        if (area > 0 && unitPrice > 0) {
+          formTotalPrice.value = (area * unitPrice).toFixed(2);
+        } else {
+          formTotalPrice.value = '';
+        }
+      };
+
+      // ============ PWA 安装逻辑 ============
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!installBannerDismissed) {
+          installBanner.classList.add('show');
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        installBanner.classList.remove('show');
+        showToast('✅ 应用已安装成功！', 'success');
+      });
+
+      window.installApp = function() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') showToast('正在安装...', 'success');
+            deferredPrompt = null;
+            installBanner.classList.remove('show');
+          });
+        } else {
+          showToast('请使用浏览器菜单安装此应用', 'info');
+        }
+      };
+
+      window.dismissInstall = function() {
+        installBanner.classList.remove('show');
+        installBannerDismissed = true;
+        localStorage.setItem('install_banner_dismissed', 'true');
+      };
+
+      if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+        installBannerDismissed = true;
+      }
+
+      // ============ 提醒逻辑 ============
+      function getDaysSinceCreation(project) {
+        if (!project.createdAt) return -1;
+        const created = new Date(project.createdAt);
+        const now = new Date();
+        const diffTime = now - created;
+        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      }
+
+      function checkAndUpdatePendingStatus() {
+        let changed = false;
+        projects.forEach(p => {
+          if (p.status === '已完成' || p.status === '已取消') return;
+          const days = getDaysSinceCreation(p);
+          if (days >= 5 && p.status === '设计中') {
+            p.status = '待处理';
+            p.updatedAt = new Date().toISOString();
+            changed = true;
+          }
+        });
+        if (changed) saveAllData();
+        return changed;
+      }
+
+      function getPendingProjects() {
+        checkAndUpdatePendingStatus();
+        return projects.filter(p => p.status === '待处理' && !handledPending[p.id]);
+      }
+
+      function getTotalPending() {
+        return getPendingProjects().length;
+      }
+
+      function showReminderModal() {
+        const pendingList = getPendingProjects();
+        const content = document.getElementById('reminderModal').querySelector('#reminderContent');
+        if (pendingList.length === 0) {
+          content.innerHTML = '<div style="padding:30px;text-align:center;color:#999;">✅ 目前没有待处理的项目</div>';
+        } else {
+          let html = '<div style="padding:10px 18px;background:#fef5e7;font-weight:700;color:#d35400;">⚠️ 以下项目已到达提醒节点，进度已自动变为"待处理"</div>';
+          pendingList.forEach(p => {
+            const days = getDaysSinceCreation(p);
+            const dayLabel = days >= 7 ? '7天' : '5天';
+            html += `<div class="reminder-item">
+              <div class="reminder-info">
+                <strong>${escapeHtml(p.projectName || '未命名项目')}</strong>
+                <small>设计师: ${escapeHtml(p.designer)} | 门店: ${escapeHtml(p.store||'-')} | 立项: ${p.date} | 已过${dayLabel}</small>
+              </div>
+              <button class="btn btn-sm" style="background:#fef5e7;color:#d35400;" onclick="markPendingHandled('${p.id}')">✔ 已知晓</button>
+            </div>`;
+          });
+          content.innerHTML = html;
+        }
+        reminderModal.style.display = 'flex';
+      }
+
+      window.closeReminderModal = function() {
+        reminderModal.style.display = 'none';
+        updateReminderUI();
+      };
+
+      window.markPendingHandled = function(projectId) {
+        handledPending[projectId] = new Date().toISOString();
+        saveAllData();
+        showReminderModal();
+        updateReminderUI();
+        renderAll();
+      };
+
+      function updateReminderUI() {
+        const total = getTotalPending();
+        document.getElementById('statReminders').textContent = total;
+        document.getElementById('reminderCount').textContent = total;
+        const pill = document.getElementById('reminderPill');
+        if (total > 0) {
+          pill.style.display = 'flex';
+          pill.classList.add('reminder-indicator');
+        } else {
+          pill.style.display = 'none';
+          pill.classList.remove('reminder-indicator');
+        }
+      }
+
+      function autoShowReminders() {
+        checkAndUpdatePendingStatus();
+        const total = getTotalPending();
+        if (total > 0) {
+          setTimeout(() => showReminderModal(), 800);
+        }
+      }
+
+      function openAddModal() {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = '➕ 新增项目';
+        formDate.value = new Date().toISOString().split('T')[0];
+        formDesigner.value = ''; formGroupEl.value = 'A组'; formStore.value = '';
+        formProjectName.value = ''; formArea.value = ''; formUnitPrice.value = '';
+        formTotalPrice.value = ''; formStatus.value = '设计中'; formNote.value = '';
+        modalOverlay.style.display = 'flex';
+      }
+
+      window.openEditModal = function(id) {
+        const p = projects.find(x => x.id === id);
+        if(!p) return;
+        editingId = id;
+        document.getElementById('modalTitle').textContent = '✏️ 编辑项目';
+        formDate.value = p.date; formDesigner.value = p.designer;
+        formGroupEl.value = p.group; formStore.value = p.store || '';
+        formProjectName.value = p.projectName || ''; formArea.value = p.area || '';
+        formUnitPrice.value = p.unitPrice || ''; formTotalPrice.value = p.totalPrice || '';
+        formStatus.value = p.status; formNote.value = p.note || '';
+        modalOverlay.style.display = 'flex';
+      };
+
+      window.closeModal = function() { modalOverlay.style.display = 'none'; editingId = null; };
+      modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeModal(); });
+      reminderModal.addEventListener('click', (e) => { if(e.target === reminderModal) closeReminderModal(); });
+
+      window.saveProject = function() {
+        const date = formDate.value.trim();
+        const designer = formDesigner.value.trim();
+        const group = formGroupEl.value;
+        const store = formStore.value.trim();
+        const projectName = formProjectName.value.trim();
+        const area = parseFloat(formArea.value) || 0;
+        const unitPrice = parseFloat(formUnitPrice.value) || 0;
+        const totalPrice = (area > 0 && unitPrice > 0) ? parseFloat((area * unitPrice).toFixed(2)) : 0;
+        const status = formStatus.value;
+        const note = formNote.value.trim();
+        if(!date || !designer || !projectName) {
+          alert('请填写日期、设计师和项目名称'); return;
+        }
+        const profit = calcProfit(area);
+        const now = new Date().toISOString();
+        const project = {
+          id: editingId || generateId(),
+          date, designer, group, store, projectName,
+          area: area > 0 ? parseFloat(area.toFixed(2)) : 0,
+          unitPrice: unitPrice > 0 ? parseFloat(unitPrice.toFixed(2)) : 0,
+          totalPrice: totalPrice,
+          profit,
+          status, note: note || '',
+          createdAt: editingId ? (projects.find(p=>p.id===editingId)?.createdAt || now) : now,
+          updatedAt: now
+        };
+        if (status === '已完成' || status === '已取消') {
+          delete handledPending[project.id];
+        }
+        if(editingId) {
+          const idx = projects.findIndex(p=>p.id===editingId);
+          if(idx!==-1) projects[idx] = project;
+        } else {
+          projects.unshift(project);
+        }
+        saveAllData().then(() => {
+          closeModal(); renderAll();
+          showToast('✅ 项目已保存', 'success');
+        });
+      };
+
+      window.deleteProject = function(id) {
+        if(confirm('删除此项目？')) {
+          projects = projects.filter(p=>p.id!==id);
+          delete handledPending[id];
+          saveAllData().then(() => {
+            renderAll();
+            showToast('🗑️ 项目已删除', 'info');
+          });
+        }
+      };
+
+      function getFiltered() {
+        const s = searchInput.value.toLowerCase().trim();
+        const g = filterGroup.value;
+        const st = filterStatus.value;
+        return projects.filter(p=>{
+          if(s && !p.designer.toLowerCase().includes(s) && !(p.store||'').toLowerCase().includes(s) && !(p.projectName||'').toLowerCase().includes(s) && !p.group.toLowerCase().includes(s) && !(p.note||'').toLowerCase().includes(s)) return false;
+          if(g!=='all' && p.group !== g) return false;
+          if(st!=='all' && p.status !== st) return false;
+          return true;
+        }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      }
+
+      function getMonthKey(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2,'0');
+        return `${y}-${m}`;
+      }
+
+      function formatMonthLabel(monthKey) {
+        const [year, month] = monthKey.split('-');
+        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        return `${year}年 ${monthNames[parseInt(month)-1]}`;
+      }
+
+      function getAllMonthKeys() {
+        const keys = new Set();
+        projects.forEach(p => keys.add(getMonthKey(p.date)));
+        return [...keys].sort((a,b)=>b.localeCompare(a));
+      }
+
+      function groupByMonth(projectList) {
+        const groups = {};
+        projectList.forEach(p => {
+          const key = getMonthKey(p.date);
+          if(!groups[key]) groups[key] = [];
+          groups[key].push(p);
+        });
+        const sortedKeys = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+        return { groups, sortedKeys };
+      }
+
+      function populateGroupFilter() {
+        const groups = [...new Set(projects.map(p=>p.group))].filter(Boolean);
+        filterGroup.innerHTML = '<option value="all">所有小组</option>' + groups.map(g=>`<option value="${g}">${g}</option>`).join('');
+        filterGroup.value = 'all';
+      }
+
+      function buildMonthPanel() {
+        const allMonths = getAllMonthKeys();
+        let html = '<div class="month-panel-title">📅 月度</div>';
+        html += `<div class="month-chip-vertical all-chip ${activeMonth==='all'?'active':''}" onclick="selectMonth('all')">📋 全部</div>`;
+        allMonths.forEach(key => {
+          const label = formatMonthLabel(key);
+          html += `<div class="month-chip-vertical ${activeMonth===key?'active':''}" onclick="selectMonth('${key}')">${label}</div>`;
+        });
+        monthPanel.innerHTML = html;
+      }
+
+      window.selectMonth = function(monthKey) {
+        activeMonth = monthKey;
+        renderAll();
+      };
+
+      function renderStats() {
+        document.getElementById('statProjects').textContent = projects.length;
+        const totalProfit = projects.reduce((sum,p)=>sum+(p.profit||0),0);
+        const totalRevenue = projects.reduce((sum,p)=>sum+(p.totalPrice||0),0);
+        document.getElementById('statProfit').textContent = '¥'+totalProfit.toLocaleString();
+        document.getElementById('statTotalRevenue').textContent = '¥'+totalRevenue.toLocaleString();
+        document.getElementById('hdrProfit').textContent = '¥'+totalProfit.toLocaleString();
+        document.getElementById('hdrProjects').textContent = projects.length;
+        updateReminderUI();
+      }
+
+      function renderMonthlySections() {
+        const filtered = getFiltered();
+        const { groups, sortedKeys } = groupByMonth(filtered);
+        let displayKeys = sortedKeys;
+        if(activeMonth !== 'all') {
+          displayKeys = sortedKeys.filter(k => k === activeMonth);
+        }
+
+        if(displayKeys.length === 0) {
+          monthlySections.innerHTML = '<div class="month-card"><div class="month-header"><span style="color:#999;">该月份暂无项目</span></div></div>';
+          return;
+        }
+
+        const pendingList = getPendingProjects();
+        const pendingIds = new Set(pendingList.map(p=>p.id));
+
+        monthlySections.innerHTML = displayKeys.map(key => {
+          const monthProjects = groups[key];
+          const monthTotal = monthProjects.reduce((s,p)=>s+(p.totalPrice||0),0);
+          const monthProfit = monthProjects.reduce((s,p)=>s+(p.profit||0),0);
+          const monthLabel = formatMonthLabel(key);
+
+          return `
+            <div class="month-card" data-month="${key}">
+              <div class="month-header" onclick="toggleMonth(this)">
+                <div class="month-title">
+                  <span class="month-icon">📅</span>
+                  <span>${monthLabel}</span>
+                  <span style="font-size:0.8rem;color:#999;">(${monthProjects.length}个项目)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div class="month-summary">
+                    <span>总价 <strong>¥${monthTotal.toLocaleString()}</strong></span>
+                    <span>利润 <strong style="color:#2d6a4f;">¥${monthProfit.toLocaleString()}</strong></span>
+                  </div>
+                  <button class="btn btn-sm btn-export-month" onclick="event.stopPropagation(); exportMonthCSV('${key}')">
+                    📥 导出本月
+                  </button>
+                  <span class="collapse-icon">▼</span>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr><th>日期</th><th>设计师</th><th>小组</th><th>门店</th><th>项目名称</th><th>面积(㎡)</th><th>单价(元/㎡)</th><th>总价(元)</th><th>利润(¥2/㎡)</th><th>进度</th><th>备注</th><th>操作</th></tr>
+                  </thead>
+                  <tbody>
+                    ${monthProjects.map(p=>{
+                      const statusClass = {
+                        '设计中': 'badge-designing',
+                        '待处理': 'badge-pending',
+                        '已完成': 'badge-completed',
+                        '已取消': 'badge-cancelled'
+                      }[p.status] || '';
+                      let rowClass = '';
+                      let reminderTag = '';
+                      if (pendingIds.has(p.id)) {
+                        rowClass = 'reminder-pending-row';
+                        reminderTag = '<span class="reminder-badge pending">待处理</span>';
+                      }
+                      const displayArea = p.area > 0 ? p.area.toFixed(2) : '-';
+                      const displayUnitPrice = p.unitPrice > 0 ? '¥'+p.unitPrice.toFixed(2) : '-';
+                      const displayTotal = p.totalPrice > 0 ? '¥'+p.totalPrice.toFixed(2) : '-';
+                      const displayProfit = p.profit > 0 ? '¥'+p.profit.toFixed(2) : '-';
+                      return `<tr class="${rowClass}">
+                        <td class="td-date">${p.date}${reminderTag}</td>
+                        <td class="td-designer">${escapeHtml(p.designer)}</td>
+                        <td><span class="td-group">${escapeHtml(p.group)}</span></td>
+                        <td><span class="td-store" title="${escapeHtml(p.store||'')}">${escapeHtml(p.store || '-')}</span></td>
+                        <td class="td-project-name" title="${escapeHtml(p.projectName||'')}">${escapeHtml(p.projectName || '-')}</td>
+                        <td>${displayArea}</td>
+                        <td class="td-price">${displayUnitPrice}</td>
+                        <td class="td-total">${displayTotal}</td>
+                        <td class="td-profit">${displayProfit}</td>
+                        <td><span class="badge-status ${statusClass}">${p.status}</span></td>
+                        <td class="td-note" title="${escapeHtml(p.note||'')}">${escapeHtml(p.note||'-')}</td>
+                        <td class="actions-cell">
+                          <button class="btn" style="padding:3px 8px;font-size:0.7rem;" onclick="openEditModal('${p.id}')">✏️</button>
+                          <button class="btn" style="padding:3px 8px;font-size:0.7rem;" onclick="deleteProject('${p.id}')">🗑️</button>
+                        </td>
+                      </tr>`;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.toggleMonth = function(headerEl) {
+        const card = headerEl.closest('.month-card');
+        card.classList.toggle('collapsed');
+      };
+
+      window.exportMonthCSV = function(monthKey) {
+        const { groups } = groupByMonth(getFiltered());
+        const monthProjects = groups[monthKey] || [];
+        if(!monthProjects.length) { showToast('该月份无项目数据', 'info'); return; }
+        downloadCSV(monthProjects, `设计师工作表_${monthKey}.csv`);
+        showToast('📥 导出成功', 'success');
+      };
+
+      window.exportAllCSV = function() {
+        const filtered = getFiltered();
+        if(!filtered.length) { showToast('无数据可导出', 'info'); return; }
+        downloadCSV(filtered, '设计师工作表_全部.csv');
+        showToast('📥 导出成功', 'success');
+      };
+
+      function downloadCSV(dataArray, filename) {
+        const headers = ['日期','设计师','小组','门店','项目名称','面积','单价','总价','利润(2元/㎡)','进度','备注'];
+        const rows = dataArray.map(p=>[p.date,p.designer,p.group,p.store||'',p.projectName||'',p.area||'',p.unitPrice||'',p.totalPrice||'',p.profit||'',p.status,p.note]);
+        const csv = '\uFEFF' + [headers,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+        const blob = new Blob([csv],{type:'text/csv'});
+        const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+      }
+
+      function escapeHtml(str) { const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+      function renderAll() {
+        checkAndUpdatePendingStatus();
+        populateGroupFilter();
+        buildMonthPanel();
+        renderStats();
+        renderMonthlySections();
+      }
+
+      searchInput.addEventListener('input', renderAll);
+      filterStatus.addEventListener('change', renderAll);
+      filterGroup.addEventListener('change', renderAll);
+
+      // ============ 种子数据 ============
+      function seedIfEmpty() {
+        if(projects.length===0) {
+          const now = new Date();
+          const daysAgo6 = new Date(now); daysAgo6.setDate(now.getDate() - 6);
+          const daysAgo8 = new Date(now); daysAgo8.setDate(now.getDate() - 8);
+          const daysAgo3 = new Date(now); daysAgo3.setDate(now.getDate() - 3);
+          const daysAgo20 = new Date(now); daysAgo20.setDate(now.getDate() - 20);
+          const daysAgo45 = new Date(now); daysAgo45.setDate(now.getDate() - 45);
+          const daysAgo60 = new Date(now); daysAgo60.setDate(now.getDate() - 60);
+
+          projects = [
+            {id:generateId(),date:'2026-04-22',designer:'陈思远',group:'A组',store:'静安旗舰店',projectName:'恒隆广场王宅',area:186.5,unitPrice:880,totalPrice:164120,profit:373.0,status:'设计中',note:'现代简约',createdAt:daysAgo6.toISOString(),updatedAt:daysAgo6.toISOString()},
+            {id:generateId(),date:'2026-04-18',designer:'林晓涵',group:'B组',store:'三里屯店',projectName:'太古里商业展厅',area:245,unitPrice:1200,totalPrice:294000,profit:490.0,status:'待处理',note:'消防审批中',createdAt:daysAgo8.toISOString(),updatedAt:daysAgo8.toISOString()},
+            {id:generateId(),date:'2026-04-24',designer:'王梓轩',group:'C组',store:'科技园店',projectName:'创新大厦办公室',area:0,unitPrice:0,totalPrice:0,profit:0,status:'设计中',note:'面积待确认',createdAt:daysAgo3.toISOString(),updatedAt:daysAgo3.toISOString()},
+            {id:generateId(),date:'2026-03-05',designer:'赵雅琳',group:'D组',store:'春熙路店',projectName:'太古里精品店',area:158,unitPrice:720,totalPrice:113760,profit:316.0,status:'已取消',note:'资金问题',createdAt:daysAgo45.toISOString(),updatedAt:daysAgo45.toISOString()},
+            {id:generateId(),date:'2026-02-20',designer:'陈思远',group:'A组',store:'西湖店',projectName:'龙井别墅',area:320,unitPrice:1500,totalPrice:480000,profit:640.0,status:'已完成',note:'庭院景观',createdAt:daysAgo60.toISOString(),updatedAt:daysAgo60.toISOString()},
+            {id:generateId(),date:'2026-01-15',designer:'林晓涵',group:'B组',store:'天河店',projectName:'珠江新城办公空间',area:200,unitPrice:950,totalPrice:190000,profit:400.0,status:'已完成',note:'',createdAt:daysAgo20.toISOString(),updatedAt:daysAgo20.toISOString()},
+          ];
+          saveAllData();
+        }
+      }
+
+      // ============ 应用启动 ============
+      window.addEventListener('load', async () => {
+        // 初始化数据库
+        await openDatabase();
+        
+        // 加载数据
+        const hasData = await loadAllData();
+        
+        // 如果没有数据，生成种子数据
+        if (!hasData) {
+          seedIfEmpty();
+        }
+        
+        // 渲染界面
+        activeMonth = 'all';
+        renderAll();
+        
+        // 自动检查提醒
+        autoShowReminders();
+        
+        // 定期自动保存（每30秒检查一次）
+        setInterval(() => {
+          if (projects.length > 0) {
+            saveAllData();
+          }
+        }, 30000);
+        
+        // 页面隐藏时保存
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            saveAllData();
+          }
+        });
+        
+        // 页面卸载时保存
+        window.addEventListener('beforeunload', () => {
+          saveAllData();
+        });
+      });
+
+      // 暴露全局方法
+      window.openAddModal = openAddModal;
+      window.showReminderModal = showReminderModal;
+      window.installApp = installApp;
+      window.dismissInstall = dismissInstall;
+    })();
+  </script>
+</body>
 </html>
